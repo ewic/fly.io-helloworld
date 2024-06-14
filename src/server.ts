@@ -1,50 +1,38 @@
-import express, { Request, Response } from 'express';
-import bodyParser from 'body-parser';
-import 'dotenv/config';
+import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 
-import pgPromise from 'pg-promise';
+const app: FastifyInstance = Fastify({})
 
-const pgp = pgPromise();
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-const dbURL = process.env.DATABASE_URL
-
-const db = pgp(`${dbURL}/flydb`);
-
-const getUsers = async () => {
-  return await db.any('SELECT * FROM accounts');
+const opts: RouteShorthandOptions = {
+  schema: {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          pong: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
 }
 
-app.use(bodyParser.json());
-app.use(express.json());
+app.get('/', opts, async (req, res) => {
+  return '<h1>hello world</h1>'
+})
 
-app.get('/', async (req: Request, res: Response) => {
-  const users = await getUsers();
+const start = async () => {
+  try {
 
-  console.log(users);
+    await app.listen({ port: 3000 })
 
-  let out = '<h1>Users</h1><br />';
-  users.forEach(user => {
-    out += `<p>${user.name}</p>`
-  })
+    const address = app.server.address()
+    const port = typeof address === 'string' ? address : address?.port
 
-  res.send(out);
-}) 
+  } catch (err) {
+    app.log.error(err)
+    process.exit(1)
+  }
+}
 
-app.post('/', (req: Request, res: Response) => {
-  console.log(req.body);
-  res.send('POST Hello World!');
-}) 
-
-app.post('/test', (req: Request, res: Response) => {
-
-  res.send('POST request')
-}) 
-
-
-app.listen( port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
-
+start()
