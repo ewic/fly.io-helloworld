@@ -1,5 +1,9 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyRequest } from "fastify";
 
-async function routes (fastify: FastifyInstance, options: Object) {
+type userRequest = FastifyRequest<{
+  Params: { id: string }
+}>
+
+async function routes (app: FastifyInstance, options: Object) {
   
 }

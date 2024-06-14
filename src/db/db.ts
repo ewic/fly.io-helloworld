@@ -1,19 +1,10 @@
-import pgPromise from "pg-promise";
+import { FastifyInstance } from "fastify"
+import fastifyPostgres from "@fastify/postgres"
 
-const pgp = pgPromise();
+const dbConnectionString = process.env.DATABASE_URL
 
-const dbURL = process.env.DATABASE_URL
-
-const db = pgp(`${dbURL}/flydb`)
-
-export const getUsers = async () => {
-  return await db.any('SELECT * FROM accounts');
+export const db = async (fastify: FastifyInstance, options: Object) => {
+  fastify.register(fastifyPostgres, {
+    connectionString: dbConnectionString
+  })
 } 
-
-export const getTable = async (table_name:string ) => {
-  return await db.any(`SELECT * FROM ${table_name}`);
-}
-
-export const insert = async (table_name: string, values: JSON) => {
-  
-}
